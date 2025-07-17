@@ -18,15 +18,17 @@ class AuthController extends Controller
      *     path="/api/register",
      *     tags={"Auth"},
      *     summary="Đăng ký người dùng mới",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name","email","password"},
-     *             @OA\Property(property="name", type="string", example="Nguyen Van A"),
-     *             @OA\Property(property="email", type="string", example="a@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="12345678")
-     *         )
-     *     ),
+    * @OA\RequestBody(
+    *     required=true,
+    *     @OA\JsonContent(
+    *         required={"name","email","password","password_confirmation"},
+    *         @OA\Property(property="name", type="string", example="Nguyen Van A"),
+    *         @OA\Property(property="email", type="string", example="a@example.com"),
+    *         @OA\Property(property="password", type="string", format="password", example="12345678"),
+    *         @OA\Property(property="password_confirmation", type="string", format="password", example="12345678")
+    *     )
+    * ),
+
      *     @OA\Response(
      *         response=201,
      *         description="Đăng ký thành công"
