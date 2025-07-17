@@ -10,6 +10,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Services\Post\PostServiceInterface;
+use Auth;
 use Illuminate\Http\JsonResponse;
 
 class PostController extends Controller
@@ -28,17 +29,17 @@ class PostController extends Controller
     }
 
     public function store(PostStorePostRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $data['user_id'] = auth()->id();
+        {
+            $data = $request->validated();
+            $data['user_id'] = Auth::id();
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('posts', 'public');
+            if ($request->hasFile('image')) {
+                $data['image'] = $request->file('image')->store('posts', 'public');
+            }
+
+            $post = $this->postService->store($data);
+            return response()->json(new PostResource($post), 201);
         }
-
-        $post = $this->postService->store($data);
-        return response()->json(new PostResource($post), 201);
-    }
 
     public function show($id): JsonResponse
     {

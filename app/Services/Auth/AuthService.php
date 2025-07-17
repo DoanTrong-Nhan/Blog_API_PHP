@@ -6,9 +6,10 @@ use App\DTOs\Auth\AuthRegisterDTO;
 use App\DTOs\Auth\AuthLoginDTO;
 use App\Models\User;
 use App\Repositories\Auth\AuthRepositoryInterface;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService implements AuthServiceInterface
 {
@@ -33,9 +34,12 @@ class AuthService implements AuthServiceInterface
     }
         public function logout(): void
         {
-            $user = auth()->user();
-            
-            $user->currentAccessToken()->delete();
+            /** @var User|null $user */
+            $user = Auth::user();
+
+            if ($user && $user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
         }
 
 }
