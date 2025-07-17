@@ -1,13 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-// app/Http/Controllers/Api/PostController.php
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\StorePostRequest as PostStorePostRequest;
 use App\Http\Requests\Post\UpdatePostRequest as PostUpdatePostRequest;
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Services\Post\PostServiceInterface;
 use Auth;
@@ -22,31 +19,100 @@ class PostController extends Controller
         $this->postService = $postService;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/posts",
+     *     summary="Lấy danh sách bài viết",
+     *     tags={"Post"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Danh sách bài viết")
+     * )
+     */
     public function index(): JsonResponse
     {
         $posts = $this->postService->getAll();
         return response()->json(PostResource::collection($posts));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/posts",
+     *     summary="Tạo bài viết",
+     *     tags={"Post"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title", "content", "category_id"},
+     *             @OA\Property(property="title", type="string", example="Bài viết mới"),
+     *             @OA\Property(property="content", type="string", example="Nội dung bài viết"),
+     *             @OA\Property(property="category_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Tạo thành công")
+     * )
+     */
     public function store(PostStorePostRequest $request): JsonResponse
-        {
-            $data = $request->validated();
-            $data['user_id'] = Auth::id();
+    {
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
 
-            if ($request->hasFile('image')) {
-                $data['image'] = $request->file('image')->store('posts', 'public');
-            }
-
-            $post = $this->postService->store($data);
-            return response()->json(new PostResource($post), 201);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('posts', 'public');
         }
 
+        $post = $this->postService->store($data);
+        return response()->json(new PostResource($post), 201);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/posts/{id}",
+     *     summary="Xem chi tiết bài viết",
+     *     tags={"Post"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID bài viết",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Chi tiết bài viết"),
+     *     @OA\Response(response=404, description="Không tìm thấy")
+     * )
+     */
     public function show($id): JsonResponse
     {
         $post = $this->postService->getById($id);
         return response()->json(new PostResource($post));
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/posts/{id}",
+     *     summary="Cập nhật bài viết",
+     *     tags={"Post"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID bài viết cần cập nhật",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="title", type="string", example="Tiêu đề mới"),
+     *             @OA\Property(property="content", type="string", example="Nội dung mới"),
+     *             @OA\Property(property="category_id", type="integer", example=2)
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Cập nhật thành công"),
+     *     @OA\Response(response=404, description="Không tìm thấy")
+     * )
+     */
     public function update(PostUpdatePostRequest $request, $id): JsonResponse
     {
         $data = $request->validated();
@@ -59,6 +125,23 @@ class PostController extends Controller
         return response()->json(new PostResource($post));
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/posts/{id}",
+     *     summary="Xóa bài viết",
+     *     tags={"Post"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID bài viết cần xóa",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Xóa thành công"),
+     *     @OA\Response(response=404, description="Không tìm thấy")
+     * )
+     */
     public function destroy($id): JsonResponse
     {
         $this->postService->destroy($id);
