@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\DTOs\Auth\AuthRegisterDTO;
 use App\DTOs\Auth\AuthLoginDTO;
+use App\Models\User;
 use App\Repositories\Auth\AuthRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class AuthService implements AuthServiceInterface
 
     public function login(AuthLoginDTO $dto): string
     {
-        $user = \App\Models\User::where('email', $dto->email)->first();
+        $user = User::where('email', $dto->email)->first();
 
         if (!$user || !Hash::check($dto->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -32,9 +33,8 @@ class AuthService implements AuthServiceInterface
     }
         public function logout(): void
         {
-            /** @var \App\Models\User $user */
             $user = auth()->user();
-
+            
             $user->currentAccessToken()->delete();
         }
 

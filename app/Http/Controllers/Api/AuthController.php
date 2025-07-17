@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\DTOs\Auth\AuthRegisterDTO;
 use App\DTOs\Auth\AuthLoginDTO;
+use App\Http\Requests\Auth\LoginRequest as AuthLoginRequest;
+use App\Http\Requests\Auth\RegisterRequest as AuthRegisterRequest;
 use App\Requests\Auth\LoginRequest;
-use App\Requests\Auth\RegisterRequest;
 use App\Services\Auth\AuthServiceInterface;
 
 class AuthController extends Controller
 {
     public function __construct(protected AuthServiceInterface $authService) {}
 
-    public function register(RegisterRequest $request)
+    public function register(AuthRegisterRequest $request)
     {
         $dto = new AuthRegisterDTO(
             name: $request->name,
@@ -26,7 +27,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Đăng ký thành công'], 201);
     }
 
-    public function login(LoginRequest $request)
+    public function login(AuthLoginRequest $request)
     {
         $dto = new AuthLoginDTO(
             email: $request->email,
